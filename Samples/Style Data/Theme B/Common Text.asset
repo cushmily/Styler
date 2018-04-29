@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d142d58ca82a4ba6aee1c5e7aed755a3, type: 3}
+  m_Name: Common Text
+  m_EditorClassIdentifier: 
+  Color:
+    _enable: 1
+    _value: {r: 1, g: 0.1372549, b: 0.16970566, a: 1}
+  Material:
+    _enable: 0
+    _value: {fileID: 0}
+  RaycastTarget:
+    _enable: 0
+    _value: 0
+  Font:
+    _enable: 0
+    _value: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  FontStyle:
+    _enable: 0
+    _value: 0
+  FontSize:
+    _enable: 1
+    _value: 16
+  LineSpace:
+    _enable: 0
+    _value: 0
+  RichText:
+    _enable: 0
+    _value: 1
+  Alignment:
+    _enable: 0
+    _value: 4
+  AlignByGeometry:
+    _enable: 0
+    _value: 1
+  HorizontalOverflow:
+    _enable: 0
+    _value: 1
+  VerticalOverflow:
+    _enable: 0
+    _value: 1
+  BestFit:
+    _enable: 0
+    _value: 0
