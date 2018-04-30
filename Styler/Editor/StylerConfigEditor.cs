@@ -1,4 +1,6 @@
-﻿using Styler.Core;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Styler.Core;
 using UIStyler.Extensions;
 using UnityEditor;
 using UnityEngine;
@@ -40,37 +42,68 @@ namespace Styler.Editor
                     }
                 }
 
-                foreach (var availableTheme in _config.AvailableThemes)
+                var themeNames = _config.AvailableThemes.Select(x => x.Key).ToList();
+                var removeThemes = new List<string>();
+
+                using (new EditorGUILayout.VerticalScope(EditorStyles.helpBox))
                 {
-                    var toggleKey = "ToggleTheme-" + availableTheme.Key;
-                    EditorPrefs.SetBool(toggleKey,
-                        EditorGUILayout.ToggleLeft(availableTheme.Key, EditorPrefs.GetBool(toggleKey, false)));
-                    if (EditorPrefs.GetBool(toggleKey, false))
+                    for (var i = 0; i < themeNames.Count; i++)
                     {
-                        EditorGUI.indentLevel++;
-                        var dataDict = availableTheme.Value;
-                        foreach (var styleType in _config.StyleTypes)
+                        var toggleKey = "ToggleTheme-" + themeNames[i];
+                        using (new GUILayout.HorizontalScope())
                         {
-                            using (new EditorGUILayout.HorizontalScope())
+                            EditorPrefs.SetBool(toggleKey,
+                                GUILayout.Toggle(EditorPrefs.GetBool(toggleKey, false), themeNames[i]));
+                            if (GUILayout.Button("Remove", EditorStyles.toolbarButton, GUILayout.Width(75)))
                             {
-                                EditorGUILayout.LabelField(styleType.name);
-
-                                if (!dataDict.ContainsKey(styleType))
-                                {
-                                    dataDict.Add(styleType, null);
-                                }
-
-                                var newObj = EditorGUILayout.ObjectField(dataDict[styleType], typeof(StyleData), false);
-
-                                if (newObj != dataDict[styleType])
-                                {
-                                    dataDict[styleType] = newObj as StyleData;
-                                }
+                                removeThemes.Add(themeNames[i]);
                             }
+
+                            GUILayout.Button("Apply", EditorStyles.toolbarButton, GUILayout.Width(75));
                         }
 
-                        EditorGUI.indentLevel--;
+                        if (EditorPrefs.GetBool(toggleKey, false))
+                        {
+                            EditorGUI.indentLevel++;
+                            var dataDict = _config.AvailableThemes[themeNames[i]];
+                            var grouper = dataDict.GroupBy(x => x.Key.Type, v => v.Key).ToList();
+                            foreach (var keyValuePairs in grouper)
+                            {
+                                EditorGUILayout.LabelField(keyValuePairs.Key.Type.ToString());
+                                EditorGUI.indentLevel++;
+                                var values = keyValuePairs.AsEnumerable();
+                                foreach (var styleType in values)
+                                {
+                                    using (new EditorGUILayout.HorizontalScope())
+                                    {
+                                        EditorGUILayout.LabelField(styleType.ToString());
+
+                                        if (!dataDict.ContainsKey(styleType))
+                                        {
+                                            dataDict.Add(styleType, null);
+                                        }
+
+                                        var newObj = EditorGUILayout.ObjectField(dataDict[styleType], typeof(StyleData),
+                                            false);
+
+                                        if (newObj != dataDict[styleType])
+                                        {
+                                            dataDict[styleType] = newObj as StyleData;
+                                        }
+                                    }
+                                }
+
+                                EditorGUI.indentLevel--;
+                            }
+
+                            EditorGUI.indentLevel--;
+                        }
                     }
+                }
+
+                for (var i = 0; i < removeThemes.Count; i++)
+                {
+                    _config.AvailableThemes.Remove(removeThemes[i]);
                 }
 
                 if (check.changed) serializedObject.ApplyModifiedProperties();

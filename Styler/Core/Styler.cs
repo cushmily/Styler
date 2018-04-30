@@ -1,8 +1,12 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Styler.Core
 {
-    public abstract class Styler : MonoBehaviour { }
+    public abstract class Styler : MonoBehaviour
+    {
+        public abstract Type Type { get; }
+    }
 
     [ExecuteInEditMode]
     public abstract class Styler<T> : Styler where T : MonoBehaviour
@@ -26,6 +30,11 @@ namespace Styler.Core
 
                 return null;
             }
+        }
+
+        public override Type Type
+        {
+            get { return typeof(T); }
         }
 
         public abstract T Target { get; }

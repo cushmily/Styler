@@ -16,21 +16,19 @@ namespace Styler.Editor
 
         private SerializedProperty ThemeNameProp;
         private SerializedProperty StyleTypeProp;
-        private SerializedProperty StyleDataProp;
 
         private void OnEnable()
         {
+            var styler = target as Core.Styler;
+
             ThemeNames = StylerConfig.Instance.AvailableThemes.Select(x => x.Key).ToList();
             ThemeNameContents = ThemeNames.Select(x => new GUIContent(x)).ToArray();
 
-            StyleTypes = StylerConfig.Instance.StyleTypes.ToList();
+            StyleTypes = StylerConfig.Instance.StyleTypes.Where(x => styler != null && x.Type == styler.Type).ToList();
             StyleTypeNameContents = StyleTypes.Select(x => new GUIContent(x.name)).ToArray();
 
             ThemeNameProp = serializedObject.FindProperty("ThemeName");
             StyleTypeProp = serializedObject.FindProperty("StyleType");
-            StyleDataProp = serializedObject.FindProperty("StyleData");
-
-//            SetStyleData(ThemeNameProp.stringValue, (StyleType) StyleTypeProp.objectReferenceValue);
         }
 
         public override void OnInspectorGUI()
@@ -41,30 +39,17 @@ namespace Styler.Editor
             using (var check = new EditorGUI.ChangeCheckScope())
             {
                 index = EditorGUILayout.Popup(new GUIContent("Theme Name"), index, ThemeNameContents);
-                ThemeNameProp.stringValue = ThemeNames[index];
+                ThemeNameProp.stringValue = index >= 0 ? ThemeNames[index] : "";
 
                 var type = StyleTypeProp.objectReferenceValue as StyleType;
                 index = StyleTypes.IndexOf(type);
 
                 index = EditorGUILayout.Popup(new GUIContent("Style Type"), index, StyleTypeNameContents);
-                StyleTypeProp.objectReferenceValue = StyleTypes[index];
+                StyleTypeProp.objectReferenceValue = index >= 0 ? StyleTypes[index] : null;
 
                 if (check.changed)
                 {
-//                    SetStyleData(themeName, type);
                     serializedObject.ApplyModifiedProperties();
-                }
-            }
-        }
-
-        private void SetStyleData(string themeName, StyleType type)
-        {
-            if (StylerConfig.Instance.AvailableThemes.ContainsKey(themeName))
-            {
-                var themeDict = StylerConfig.Instance.AvailableThemes[themeName];
-                if (type != null && themeDict.ContainsKey(type))
-                {
-                    StyleDataProp.objectReferenceValue = themeDict[type];
                 }
             }
         }
