@@ -62,38 +62,33 @@ namespace Styler.Editor
                             GUILayout.Button("Apply", EditorStyles.toolbarButton, GUILayout.Width(75));
                         }
 
+                        var dataDict = _config.AvailableThemes[themeNames[i]];
+
+                        foreach (var styleType in _config.StyleTypes)
+                        {
+                            if (!dataDict.ContainsKey(styleType))
+                            {
+                                dataDict.Add(styleType, null);
+                            }
+                        }
+
                         if (EditorPrefs.GetBool(toggleKey, false))
                         {
                             EditorGUI.indentLevel++;
-                            var dataDict = _config.AvailableThemes[themeNames[i]];
-                            var grouper = dataDict.GroupBy(x => x.Key.Type, v => v.Key).ToList();
-                            foreach (var keyValuePairs in grouper)
+                            foreach (var styleType in _config.StyleTypes)
                             {
-                                EditorGUILayout.LabelField(keyValuePairs.Key.Type.ToString());
-                                EditorGUI.indentLevel++;
-                                var values = keyValuePairs.AsEnumerable();
-                                foreach (var styleType in values)
+                                using (new EditorGUILayout.HorizontalScope())
                                 {
-                                    using (new EditorGUILayout.HorizontalScope())
+                                    EditorGUILayout.LabelField(styleType.name);
+                                    var data = dataDict[styleType];
+
+                                    var newObj = EditorGUILayout.ObjectField(data, typeof(StyleData), false);
+
+                                    if (newObj != dataDict[styleType])
                                     {
-                                        EditorGUILayout.LabelField(styleType.ToString());
-
-                                        if (!dataDict.ContainsKey(styleType))
-                                        {
-                                            dataDict.Add(styleType, null);
-                                        }
-
-                                        var newObj = EditorGUILayout.ObjectField(dataDict[styleType], typeof(StyleData),
-                                            false);
-
-                                        if (newObj != dataDict[styleType])
-                                        {
-                                            dataDict[styleType] = newObj as StyleData;
-                                        }
+                                        dataDict[styleType] = newObj as StyleData;
                                     }
                                 }
-
-                                EditorGUI.indentLevel--;
                             }
 
                             EditorGUI.indentLevel--;
